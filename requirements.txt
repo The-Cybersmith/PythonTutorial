@@ -1,2 +1,2 @@
 numpy==1.14.5
-plotly==3.10
+chart-studio==1.0.0
