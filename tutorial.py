@@ -1,8 +1,10 @@
 import requests
 import json
 from plotly import *
-import plotly.plotly as py
-import plotly.express as px
+import plotly.offline as py
+from chart_studio.plotly import plot, iplot
+#import plotly.express as px
+import plotly.graph_objs as go
 
 def get_list_of_atms():
     #response_atms_json = requests.request("GET","https://api.bankofscotland.co.uk/open-banking/v2.2/atms").json()
@@ -56,8 +58,12 @@ def get_rainy_atms_by_region():
     print(regions)
     print(region_amount)
     
-    fig = px.bar(x=regions, y=region_amount)
-    fig.show()
+    data = [go.Bar(
+       x = regions,
+       y = region_amount
+    )]
+    fig = go.Figure(data=data)
+    py.plot(fig)
 
 #get_rainy_atms_by_region is now finished
 
