@@ -2,7 +2,7 @@ import requests
 import json
 from plotly import *
 import plotly.offline as py
-from chart_studio.plotly import plot, iplot
+#from chart_studio.plotly import plot, iplot
 #import plotly.express as px
 import plotly.graph_objs as go
 
@@ -36,7 +36,6 @@ def get_rainy_atms_by_region():
     region_amount = []
     region_amount_total = []
 
-    index = 0
     for atm in atm_list:
         #print("Current index is: "+str(index))
         current_region = str(atm['Location']['PostalAddress']['CountrySubDivision'][0])
@@ -56,7 +55,6 @@ def get_rainy_atms_by_region():
             else:
                 region_amount.append(0)
             #print("New Region Added")
-        index = index + 1
 
     #print(regions)
     #print(region_amount)
@@ -82,9 +80,55 @@ def get_rainy_atms_by_region():
     )]
     fig2 = go.Figure(data=data)
     py.plot(fig2, filename = 'result2.html')
+
+def get_atm_accessibility():
+    atm_list = get_list_of_atms()
+    atm_num = len( atm_list)
+    print("number of atms is: "+str(atm_num))
+
+    #first, we need to get a list of regions
+    wheelchair_num = 0.0
+    audio_num = 0.0
+    both_num = 0.0
+
+    for atm in atm_list:
+        #print("Current index is: "+str(index))
+        sevice_list = atm['Accessibility']
+        audio = False
+        wheel = False
+        if "AudioCashMachine" in sevice_list:
+            audio = True
+        if "WheelchairAccess" in sevice_list:
+            wheel = True
+        
+        if wheel and audio:
+            print("one with both")
+            both_num = both_num + 1.0
+        elif wheel and (not audio):
+            print("one with only wheels")
+            wheelchair_num = wheelchair_num + 1.0
+        elif audio and (not wheel):
+            print("one with only audio")
+            audio_num = audio_num + 1.0
+        else:
+            print("no Accessibility")
+            
+    name_list = ['Audio Accessibility','Wheelchair Accessibility','total Accessibility']
+    wheelchair_num = (wheelchair_num/atm_num)*100.0
+    audio_num = (audio_num/atm_num)*100.0
+    both_num = (both_num/atm_num)*100.0
+    percentage_list = [audio_num,wheelchair_num,both_num]
     
-    
-#get_rainy_atms_by_region is now finished
+    #now make the graph
+    data = [go.Bar(
+       x = name_list,
+       y = percentage_list
+    )]
+    fig3 = go.Figure(data=data)
+    py.plot(fig3, filename = 'accessibility.html')
 
 
+print("getting region data")
 get_rainy_atms_by_region()
+print("getting Accessibility data")
+get_atm_accessibility()
