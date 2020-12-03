@@ -34,20 +34,23 @@ def get_rainy_atms_by_region():
     #first, we need to get a list of regions
     regions = []
     region_amount = []
+    region_amount_total = []
 
     index = 0
-    while index < atm_num:
+    for atm in atm_list:
         #print("Current index is: "+str(index))
-        current_region = str(atm_list[index]['Location']['PostalAddress']['CountrySubDivision'][0])
-        branch_subtype = str(atm_list[index]['Location']['LocationCategory'][0])
+        current_region = str(atm['Location']['PostalAddress']['CountrySubDivision'][0])
+        branch_subtype = str(atm['Location']['LocationCategory'][0])
         #print("Region is: "+current_region)
         if current_region in regions:
             #print("Region already known")
             placement = regions.index(current_region)
+            region_amount_total[placement] = region_amount_total[placement] + 1
             if branch_subtype == 'BranchExternal':
                 region_amount[placement] = region_amount[placement] + 1
         else:
             regions.append(current_region)
+            region_amount_total.append(1)
             if branch_subtype == 'BranchExternal':
                 region_amount.append(1)
             else:
@@ -55,16 +58,32 @@ def get_rainy_atms_by_region():
             #print("New Region Added")
         index = index + 1
 
-    print(regions)
-    print(region_amount)
+    #print(regions)
+    #print(region_amount)
     
     data = [go.Bar(
        x = regions,
        y = region_amount
     )]
-    fig = go.Figure(data=data)
-    py.plot(fig)
+    fig1 = go.Figure(data=data)
+    py.plot(fig1, filename = 'result1.html')
 
+    #now we need to calculate our percentages
+    region_percentages = []
+    
+    for index in range(0, len(regions)):
+        fraction = float(region_amount[index])/float(region_amount_total[index])
+        percentage = fraction*100.0
+        region_percentages.append(percentage)
+    
+    data = [go.Bar(
+       x = regions,
+       y = region_percentages
+    )]
+    fig2 = go.Figure(data=data)
+    py.plot(fig2, filename = 'result2.html')
+    
+    
 #get_rainy_atms_by_region is now finished
 
 
